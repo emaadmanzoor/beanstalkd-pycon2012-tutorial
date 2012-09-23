@@ -134,7 +134,7 @@ section "Now, we code" do
 
                     #{O}π = 4 * ( ΣC(i) / N )#{X}
 
-        #{R}Beanstalkd Details#{X}
+        #{R}Implementation Details#{X}
         
         - Queues: default and named (message-for-worker, message-for-master)
         - Parameters: number of darts to throw
@@ -143,10 +143,98 @@ section "Now, we code" do
     EOS
 
     slide <<-EOS, :code
-        # Let's first create slaves that simply echo their orders
+        # master.py
+        # 
+        # Our first master, does what a slave-driver does.
 
-        import beanstalkc
-         
+    EOS
+
+    slide <<-EOS, :code
+        # worker.py
+        #
+        # Our first slaves, simply echo their orders.
+
+    EOS
+
+    slide <<-EOS, :center
+        #{Y}Does it work?#{X}
+    EOS
+
+    slide <<-EOS, :code
+        # master.py
+        #
+        # Ramp up our efficiency; deadlines and dedicated queues 
+
+    EOS
+
+    slide <<-EOS, :code
+        # worker.py
+        #
+        # Ramp up our efficiency; deadlines and dedicated queues 
+
+    EOS
+
+    slide <<-EOS, :center
+        #{Y}Does it still work?#{X}
+    EOS
+
+    slide <<-EOS, :code
+        # master.py
+        #
+        # Training's done, lets kick some π
+
+    EOS
+
+    slide <<-EOS, :code
+        # worker.py
+        #
+        # Training's done, let's kick some π
+
+    EOS
+
+    slide <<-EOS, :center
+        #{Y}Slide!#{X}
+    EOS
+end
+
+section "The Beanstalk Protocol" do
+    slide <<-EOS, :block
+        #{Y}Implementation#{X}
+
+        - Runs over TCP using ASCII.
+        - Commands are processed and responded to
+          in the same order in which they are received.
+    EOS
+    
+    slide <<-EOS, :block
+        #{Y}Job Cycle#{X}
+
+
+              put <delay>               release <delay>
+          ----------------> [DELAYED] <------------.
+                                |                   |
+                                | (time passes)     |
+                                |                   |
+           put <pr> <ttr>       v     reserve       |       delete
+          -----------------> [READY] ---------> [RESERVED] --------> *poof*
+                               ^  ^                |  |
+                               |   \  release <pr> |  |
+                               |    `-------------'   |
+                               |                      |
+                               | kick                 |
+                               |                      |
+                               |       bury           |
+                            [BURIED] <---------------'
+                               |
+                               |  delete
+                                `--------> *poof*
+
+        #{R}Other Commands#{X}
+        
+        - use #{O}<tube>#{X}, watch #{O}<tube>#{X}
+        - peek #{O}<id>#{X}, peek-ready, peek-delayed, peek-buried
+        - kick #{O}<bound>#{X}, kick-job #{O}id#{X}
+        - stats-job #{O}<id>#{X}, stats-tube #{O}<tube>#{X}
     EOS
 end
 

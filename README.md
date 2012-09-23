@@ -1,4 +1,6 @@
-# Building A Cluster with Beanstalkd: A Pycon India 2012 Tutorial
+# Building A Cluster with Beanstalkd
+
+*A PyCon 2012 Tutorial*
 
 ## Information
 

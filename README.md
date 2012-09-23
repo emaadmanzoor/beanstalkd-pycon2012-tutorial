@@ -4,7 +4,7 @@
 
 ## Information
 
-The Pycon India 2012 funnel has all the [tutorial details](in.pycon.org/2012/funnel/pyconindia2012/55-simple-linux-cluster-with-python-and-beanstalkd/).
+The Pycon India 2012 funnel has all the [tutorial details](http://in.pycon.org/2012/funnel/pyconindia2012/55-simple-linux-cluster-with-python-and-beanstalkd/).
 
 ## Speakers
 

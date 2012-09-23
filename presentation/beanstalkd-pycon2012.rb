@@ -3,7 +3,7 @@
 # My colors
 R="\033[0;38;5;203m"
 Y="\033[0;38;5;227m"
-G="\033[0;38;5;46m"
+G="\033[0;38;5;32m"
 O="\033[0;38;5;208m"
 GR="\033[0;38;5;250m"
 X="\033[0m"
@@ -59,6 +59,13 @@ section "Procuring The Ingredients" do
         - pip: python-distribute/python-setuptools
         - gcc: Some way to compile C source code
         - git
+    EOS
+    slide <<-EOS, :block
+        #{Y}Useful Tabs#{X}
+
+        - #{G}https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial#{X}
+        - #{G}https://github.com/kr/beanstalkd#{X}
+        - #{G}https://github.com/earl/beanstalkc/#{X}
     EOS
     slide <<-EOS, :block
         #{Y}YAML#{X}
@@ -218,7 +225,7 @@ section "The Beanstalk Protocol" do
            put <pr> <ttr>       v     reserve       |       delete
           -----------------> [READY] ---------> [RESERVED] --------> *poof*
                                ^  ^                |  |
-                               |   \  release <pr> |  |
+                               |   \\  release <pr> |  |
                                |    `-------------'   |
                                |                      |
                                | kick                 |
@@ -229,6 +236,9 @@ section "The Beanstalk Protocol" do
                                |  delete
                                 `--------> *poof*
 
+
+        #{G}https://github.com/kr/beanstalkd/blob/master/doc/protocol.txt#{X}
+        
         #{R}Other Commands#{X}
         
         - use #{O}<tube>#{X}, watch #{O}<tube>#{X}

@@ -1,10 +1,15 @@
 # Building A Cluster with Beanstalkd
 
-*A PyCon 2012 Tutorial*
+### *A PyCon 2012 Tutorial*
 
 ## Information
 
 The Pycon India 2012 funnel has all the [tutorial details](http://in.pycon.org/2012/funnel/pyconindia2012/55-simple-linux-cluster-with-python-and-beanstalkd/).
+
+## Credits
+
+We'd worked on this as a [course project](https://github.com/emaadmanzoor/distributed-pi-estimation)
+under the guidance of [Dr. Biju K. Raveendran](http://www.bits-pilani.ac.in/goa/biju/Profile) at BITS - Pilani, Goa Campus.
 
 ## Speakers
 
@@ -18,8 +23,3 @@ our time with code in the terminal. The was possible with the very awesome
 [tkn](https://github.com/fxn/tkn) by [@fxn](https://github.com/fxn).
 
 We'll upload a screencast or presentation of some form soon.
-
-## Credits
-
-We'd worked on this as a [course project](https://github.com/emaadmanzoor/distributed-pi-estimation)
-under the guidance of Dr. Biju KR at BITS - Pilani, Goa Campus.

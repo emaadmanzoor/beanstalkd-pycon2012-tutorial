@@ -28,6 +28,9 @@ drop in `__init__.py` and `railscasts.py` into the `pygments` styles
 directory created by the `pygments.rb` gem. For me on OSX Lion, this was:
 `~/.rvm/gems/ruby-1.9.3-p194/gems/pygments.rb-0.2.13/vendor/pygments-main/pygments/styles/`
 
+Run the presentation in the terminal by executing the Ruby script in the `presentation` directory:
+`bundle exec bin/tkn beanstalkd-pycon2012.rb`
+
 ### Presentation Snapshots
 
 Here are some snapshots of the presentation in the terminal. We'll upload a screencast after

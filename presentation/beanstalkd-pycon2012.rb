@@ -57,6 +57,8 @@ section "Procuring The Ingredients" do
 
         - python-2.7.x
         - pip: python-distribute/python-setuptools
+            - curl http://python-distribute.org/distribute_setup.py | python
+            - curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python
         - gcc: Some way to compile C source code
         - git
     EOS
@@ -68,26 +70,43 @@ section "Procuring The Ingredients" do
         - #{G}https://github.com/earl/beanstalkc/#{X}
     EOS
     slide <<-EOS, :block
+        #{Y}Anyone using virtualenv?#{X}
+       
+        - pip install virtualenv
+        - virtualenv pycon
+        - cd pycon
+        - source bin/activate
+
+        #{R}Be lazy.#{X}
+
+        - pip install pyyaml
+        - pip install beanstalkc
+
+        #{R}Rough times?#{X}
+        
+        - Let's look at the requirements one at a time.
+    EOS
+    slide <<-EOS, :block
         #{Y}YAML#{X}
        
-        #{R}libyaml:#{X}
+        #{R}pyyaml:#{X}
+            - pip install pyyaml
+
+        #{R}libyaml issues?#{X}
             - brew install libyaml
             - pacman -S libyaml
             - Other package managers? 
-
-        #{R}pyyaml:#{X}
-            - pip install pyyaml
     EOS
     slide <<-EOS, :block
         #{Y}Beanstalk Client & Daemon#{X}
+        
+        #{R}Beanstalkc#{X}
+            - pip install beanstalkc
         
         #{R}Beanstalkd#{X}
             - git clone https://github.com/kr/beanstalkd
             - make
             - ./beanstalkd
-
-        #{R}Beanstalkc#{X}
-            - pip install beanstalkc
     EOS
 end
 
@@ -150,17 +169,43 @@ section "Now, we code" do
     EOS
 
     slide <<-EOS, :code
-        # master.py
+        # pi-simple-master.py
         # 
         # Our first master, does what a slave-driver does.
 
+        import beanstalkc
+
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+
+        for i in range(5):
+            beanstalk.put('job for you')
     EOS
 
     slide <<-EOS, :code
-        # worker.py
+        # pi-simple-slave.py
         #
-        # Our first slaves, simply echo their orders.
+        # Our first slaves.
+        
+        import beanstalkc
 
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+
+        job = beanstalk.reserve()
+        print job.body
+    EOS
+
+    slide <<-EOS, :code
+        # pi-better-slave.py
+        # 
+        # A better slave, works until killed. 
+
+        import beanstalkc
+
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+        
+        while True:
+            job = beanstalk.reserve()
+            print job.body
     EOS
 
     slide <<-EOS, :center
@@ -168,17 +213,56 @@ section "Now, we code" do
     EOS
 
     slide <<-EOS, :code
-        # master.py
+        # piconfig.py
         #
-        # Ramp up our efficiency; deadlines and dedicated queues 
+        # Configcoden parameters for our workers and slaves
 
+        JOBS = "jobs"       # The master pushes to this queue
+        ACKS = "acks"       # The workers push to this queue
+        DEADLINE = 5        # 5 seconds to complete (delete) the job
+        PARALLELISM = 5     # Number of workers running in parallel
+        TOTALDARTS = 5000   # Total number of darts to throw
+        SQEDGELEN = 2.0     # Length of the edge of the square
     EOS
 
     slide <<-EOS, :code
-        # worker.py
+        # pi-efficient-master.py
         #
         # Ramp up our efficiency; deadlines and dedicated queues 
 
+        import beanstalkc
+        import piconfig
+
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+        beanstalk.use(piconfig.JOBS)        # Push here
+        beanstalk.watch(piconfig.ACKS)      # Listen here
+
+        for i in range(5):
+            print "Put job", i
+            beanstalk.put(str(i), piconfig.DEADLINE)
+
+        for i in range(5):
+            job = beanstalk.reserve()
+            print "Received job", i
+    EOS
+
+    slide <<-EOS, :code
+        # pi-efficient-slave.py
+        #
+        # Ramp up our efficiency; deadlines and dedicated queues 
+        
+        import beanstalkc
+        import piconfig
+
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+        beanstalk.watch(piconfig.JOBS)
+        beanstalk.use(piconfig.ACKS)
+
+        while True:
+            job = beanstalk.reserve()
+            beanstalk.put(job.body)
+            print "Worked on job", job.body
+            job.delete()    
     EOS
 
     slide <<-EOS, :center
@@ -186,19 +270,73 @@ section "Now, we code" do
     EOS
 
     slide <<-EOS, :code
-        # master.py
+        # pi-final-master.py
         #
-        # Training's done, lets kick some π
+        # Training's done, let's kick some Pi 
 
+        import beanstalkc
+        import piconfig
+        import time
+
+        startTime = time.time()
+
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+        beanstalk.use(piconfig.JOBS)
+        beanstalk.watch(piconfig.ACKS)
+
+        dartsPerJob = int(piconfig.TOTALDARTS / piconfig.PARALLELISM)
+
+        for i in range(piconfig.PARALLELISM):
+            print "Put job", i
+            beanstalk.put(str(dartsPerJob), piconfig.DEADLINE)
+
+        totalCircleCount = 0
+        for i in range(piconfig.PARALLELISM):
+            job = beanstalk.reserve()
+            totalCircleCount += int(job.body)
+            print "Received job", i, "circle count =", job.body
+            job.delete()
+
+        pi = (4.0 * totalCircleCount) / (piconfig.TOTALDARTS)
+
+        print "Pi =", pi
+        print "Time taken:", str(time.time() - startTime), "seconds."
     EOS
 
     slide <<-EOS, :code
-        # worker.py
+        # pi-final-slave.py
         #
-        # Training's done, let's kick some π
+        # Training's done, let's kick some Pi 
 
+        import beanstalkc
+        import piconfig
+        import random
+
+        beanstalk = beanstalkc.Connection(host='127.0.0.1', port=11300)
+        beanstalk.watch(piconfig.JOBS)
+        beanstalk.use(piconfig.ACKS)
+
+        circleRadius = piconfig.SQEDGELEN / 2 
+
+        while True:
+            print "Waiting for work..."
+
+        job = beanstalk.reserve()
+
+        dartsToThrow = int(job.body)
+        dartsInCircle = 0
+        for i in range(dartsToThrow):
+            x = (random.random() * piconfig.SQEDGELEN) - (piconfig.SQEDGELEN/2)
+            y = (random.random() * piconfig.SQEDGELEN) - (piconfig.SQEDGELEN/2)
+            if x ** 2 + y ** 2 <= circleRadius ** 2:
+                dartsInCircle += 1
+
+        beanstalk.put(str(dartsInCircle))
+
+        print "Found", dartsInCircle, "out of", job.body, "darts within the circle."
+        job.delete()
     EOS
-
+            
     slide <<-EOS, :center
         #{Y}Slide!#{X}
     EOS
@@ -246,6 +384,9 @@ section "The Beanstalk Protocol" do
         - kick #{O}<bound>#{X}, kick-job #{O}id#{X}
         - stats-job #{O}<id>#{X}, stats-tube #{O}<tube>#{X}
     EOS
+end
+
+section "Distributed Matrix Multiplication" do
 end
 
 section "And we're done, thanks!" do

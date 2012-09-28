@@ -19,7 +19,27 @@ EOS
 
 section "Purpose and Background" do
     slide <<-EOS, :block
+        #{R}Simple Linux Cluster with Beanstalkd#{X}
+
+        #{Y}Lets figure the title, piece by piece:#{X}
+        - #{R}Cluster: #{X}
+        - #{R}Beanstalkd: #{X}
+    EOS
+
+    slide <<-EOS, :block
+        #{Y}We considered the alternatives#{X}
+        - #{R}[..] and found that they were really ugly..#{X}
+        - #{R}Case(s) in point: MPI? MPICH? OpenMPI?
+        - #{R}MPI, Y U Make my life so hard? <rage face>
+    EOS
+
+    slide <<-EOS, :block
         #{Y}What We Want#{X}
+
+        - #{R}A bread board to try our parallel algorithms on!#{X}
+    EOS
+    slide <<-EOS, :block
+        #{Y}What We Really Want#{X}
 
         - #{R}Speed:#{X} Parallelism, visible speedup
         - #{R}Fault-tolerance:#{X} Master, slave
@@ -321,20 +341,20 @@ section "Now, we code" do
         while True:
             print "Waiting for work..."
 
-        job = beanstalk.reserve()
+            job = beanstalk.reserve()
 
-        dartsToThrow = int(job.body)
-        dartsInCircle = 0
-        for i in range(dartsToThrow):
-            x = (random.random() * piconfig.SQEDGELEN) - (piconfig.SQEDGELEN/2)
-            y = (random.random() * piconfig.SQEDGELEN) - (piconfig.SQEDGELEN/2)
-            if x ** 2 + y ** 2 <= circleRadius ** 2:
-                dartsInCircle += 1
+            dartsToThrow = int(job.body)
+            dartsInCircle = 0
+            for i in range(dartsToThrow):
+                x = (random.random() * piconfig.SQEDGELEN) - (piconfig.SQEDGELEN/2)
+                y = (random.random() * piconfig.SQEDGELEN) - (piconfig.SQEDGELEN/2)
+                if x ** 2 + y ** 2 <= circleRadius ** 2:
+                    dartsInCircle += 1
 
-        beanstalk.put(str(dartsInCircle))
+            beanstalk.put(str(dartsInCircle))
 
-        print "Found", dartsInCircle, "out of", job.body, "darts within the circle."
-        job.delete()
+            print "Found", dartsInCircle, "out of", job.body, "darts within the circle."
+            job.delete()
     EOS
             
     slide <<-EOS, :center
@@ -387,6 +407,70 @@ section "The Beanstalk Protocol" do
 end
 
 section "Distributed Matrix Multiplication" do
+end
+
+section "Getting Ready" do
+  slide <<-EOS, :block
+        #{Y}Matrix multiplication: Naive Algorithm takes too much time.
+                  Lets try to parallelize the process!
+        #{Y}But wait, there is something we need to install for that..
+  EOS
+           
+  slide <<-EOS, :block
+        #{R} Memcached: http://memcached.org/#{X}
+
+        # What is memcached?
+          Memcached is an in-memory key-value store for small chunks of arbitrary data (strings, objects).
+          - For instance: key_store.get( key ) = value
+          - It is like a (python) dictionary residing in the main memory.
+          - ..only that this dictionary is accessible by all the cluster nodes!
+
+        #{Y}Let's install memcached:
+          - yum install memcached
+          - pip install python-memcached
+  EOS
+end
+
+section "Testing the Installation" do
+  slide <<-EOS, :code
+  On a terminal, run:
+  $ memcached
+
+  Then try:
+
+  [rachee@lyrebird presentation]$ python
+  Python 2.7.3 (default, Jul 24 2012, 10:05:38) 
+  [GCC 4.7.0 20120507 (Red Hat 4.7.0-5)] on linux2
+  Type "help", "copyright", "credits" or "license" for more information.
+  >>> import memcache
+  >>> mc = memcache.Client( ['10.4.12.63:11211'], debug=0 )
+  >>> mc
+  <memcache.Client object at 0x7f4083a354c8>
+
+  EOS
+  slide <<-EOS, :center
+        #{Y}Does it work?#{X}
+  EOS
+end
+
+section "Lets test that installation!" do
+  slide <<-EOS, :block
+        #{Y}Distributed π Estimation#{X}
+        
+                    Square Edge Length = #{O}2R#{X}
+                    Square Area = #{O}(2R) ^ 2 = 4 * (R ^ 2)#{X}
+                    Circle Area = #{O}π * (R ^ 2)#{X}
+
+                    #{O}π = 4 * ( Circle Area / Square Area )#{X}
+
+        #{R}Serial Algorithm#{X}
+        
+        - Randomly throw many darts into the defined square region.
+        - Find the ratio of number of darts struck within the circle #{O}= C#{X}
+          to the total number of darts thrown #{O}= N#{X}.
+            
+                    #{O}π = 4 x ( C / N )#{X}
+  EOS
 end
 
 section "And we're done, thanks!" do

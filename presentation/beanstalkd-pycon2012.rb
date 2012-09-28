@@ -473,7 +473,6 @@ section "Now, we code" do
        # Config file having parameters the master and slave would use
        import matconfig
 
-       print "Connecting to beanstalkd server.."
        beanstalk = beanstalkc.Connection( '127.0.0.1', 11300 )
 
        beanstalk.use( matconfig.JOBS )
@@ -502,10 +501,7 @@ section "Now, we code" do
            job = beanstalk.reserve()
            print 'Confirmation: Worker finished computing C' + job.body
 
-     print 'All workers finished.'
-     print 'Extracting result from memory..'
-
-     print 'Got the result, Here it is: '
+     print 'Product of Matrices:'
      for i in range( matconfig.MATRIX_SIZE ):
         for j in range( matconfig.MATRIX_SIZE ):
             print ( mc.get( str( i*matconfig.MATRIX_SIZE + j ) ) ),
@@ -520,14 +516,11 @@ section "Now, we code" do
      import matconfig
  
      while True:                            # Indefinitely wait for jobs to do
-        print "Connecting to job server..."
         beanstalk = beanstalkc.Connection( host='127.0.0.1', port=11300 )
         beanstalk.watch( matconfig.JOBS )     # Reserve jobs from this queue
-        print "Waiting for jobs..."
 
         job = beanstalk.reserve()           # Blocks until a job is available
 
-        print "Reserved a job.."
         [ strI, strJ, stringRow, stringColumn ] = job.body.split( '\\n' )
         I = int( strI )
         J = int( strJ )

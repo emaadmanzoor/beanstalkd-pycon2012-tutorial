@@ -394,14 +394,7 @@ end
 section "Distributed Matrix Multiplication" do
 end
 
-section "Getting Ready" do
-  slide <<-EOS, :block
-        #{Y}Matrix multiplication: Naive Algorithm takes too much time.#{X}
-
-        - Lets try to parallelize the process!
-
-        #{Y}But wait, there is something we need to install for that..#{X}
-  EOS
+section "Prerequisites" do
            
   slide <<-EOS, :block
         #{R}Memcached: http://memcached.org/#{X}

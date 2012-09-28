@@ -18,30 +18,15 @@ slide <<-EOS, :block
 EOS
 
 section "Purpose and Background" do
-    slide <<-EOS, :block
-        #{R}Simple Linux Cluster with Beanstalkd#{X}
-
-        #{Y}Lets figure the title, piece by piece:#{X}
-        - #{R}Cluster: #{X}
-        - #{R}Beanstalkd: #{X}
-    EOS
-
-    slide <<-EOS, :block
-        #{Y}We considered the alternatives#{X}
-        - #{R}[..] and found that they were really ugly..#{X}
-        - #{R}Case(s) in point: MPI? MPICH? OpenMPI?
-        - #{R}MPI, Y U Make my life so hard? <rage face>
+    slide <<-EOS, :center
+        Linux + Cluster == Beanstalkd?
     EOS
 
     slide <<-EOS, :block
         #{Y}What We Want#{X}
 
-        - #{R}A bread board to try our parallel algorithms on!#{X}
-    EOS
-    slide <<-EOS, :block
-        #{Y}What We Really Want#{X}
-
         - #{R}Speed:#{X} Parallelism, visible speedup
+        - #{R}More Speed:#{X} A breadboard to quickly prototype parallal algorithms on
         - #{R}Fault-tolerance:#{X} Master, slave
         - #{R}Open-source:#{X} Free
         - #{R}Fun:#{X} Python

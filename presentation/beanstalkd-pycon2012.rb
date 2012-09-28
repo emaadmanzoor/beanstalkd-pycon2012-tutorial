@@ -52,7 +52,6 @@ section "Purpose and Background" do
         - Setup and test Beanstalk{d,c} on our nodes.
         - A Monte-Carlo Algorithm: #{R}Distributed Estimation of π.#{X}
         - A More Useful Algorithm: #{R}Distributed Matrix Multiplication.#{X}
-        - Enable and experiment with some basic fault tolerance. 
     EOS
 end
 
@@ -397,37 +396,39 @@ end
 section "Prerequisites" do
            
   slide <<-EOS, :block
-        #{R}Memcached: http://memcached.org/#{X}
+        #{Y}Memcached#{X}
 
-        #{Y}What is memcached?#{X}
-          Memcached is an in-memory key-value store for small chunks of arbitrary data (strings, objects).
-          - For instance: key_store.get( key ) = value
-          - It is like a (python) dictionary residing in the main memory.
-          - ..only that this dictionary is accessible by all the cluster nodes!
+        - http://memcached.org/
+        - A distributed in-memory key-value store
+        - Accessable by all cluster nodes via HOST:PORT
 
-        #{Y}Let's install memcached:#{X}
-          - yum install memcached
-          - pip install python-memcached
   EOS
-end
+  slide <<-EOS, :block
+    #{Y}Install memcached#{X}
 
-section "Testing the Installation" do
+    - yum install memcached
+    - pip install python-memcached
+
+    #{Y}Start memcached#{X}
+    
+    - memcached    
+  EOS
+
   slide <<-EOS, :code
-  On a terminal, run:
-  $ memcached
 
-  Then try:
+  # Try the Python memcached client
 
-  [rachee@lyrebird presentation]$ python
-  Python 2.7.3 (default, Jul 24 2012, 10:05:38) 
-  [GCC 4.7.0 20120507 (Red Hat 4.7.0-5)] on linux2
-  Type "help", "copyright", "credits" or "license" for more information.
   >>> import memcache
   >>> mc = memcache.Client( ['10.4.12.63:11211'], debug=0 )
   >>> mc
   <memcache.Client object at 0x7f4083a354c8>
+  >>> mc.set("abc", "123")
+  True
+  >>> mc.get("abc")
+  '123'
 
   EOS
+
   slide <<-EOS, :center
         #{Y}Does it work?#{X}
   EOS
@@ -452,18 +453,21 @@ section "Now, we code" do
         # matconfig.py
         #
         # Configuration parameters for our workers and slaves
+        
         JOBS = "jobs"       # The master pushes to this queue
         ACKS = "acks"       # The workers push to this queue
         MATRIX1 = [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]      # Input Matrix 1
         MATRIX2 = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]      # Input Matrix 2
         MATRIX_SIZE = len( MATRIX1 )       # Size of matrix
-
   EOS
 
   slide <<-EOS, :code
+       # matrix-master.py
+       #
+       # Sends a row and column to each slave and waits for ACKs
+
        import beanstalkc
        import memcache
-       # Config file having parameters the master and slave would use
        import matconfig
 
        beanstalk = beanstalkc.Connection( '127.0.0.1', 11300 )
@@ -475,44 +479,45 @@ section "Now, we code" do
 
        for i in range( matconfig.MATRIX_SIZE ):
            for j in range( matconfig.MATRIX_SIZE ):
-              print 'Sending a row and column to job queue..'
               row = matconfig.MATRIX1[ i ]
               column = [ r[ j ] for r in matconfig.MATRIX2 ]
               stringRow = ' '.join( map( str, row ) )
               stringColumn = ' '.join( map( str, column ) )
-
-              # Separating the row and column with a new line
               jobString = str( matconfig.MATRIX_SIZE * i ) + '\\n' + str( j ) \\
                    + '\\n' + stringRow + '\\n' + stringColumn
               beanstalk.put( jobString )
 
-       print 'Sent all jobs to queue.'
-       
-       # Each of the jobs returned would contain confirmation if
-       # Cij was completed
        for i in range( matconfig.MATRIX_SIZE**2 ):
            job = beanstalk.reserve()
            print 'Confirmation: Worker finished computing C' + job.body
 
-     print 'Product of Matrices:'
-     for i in range( matconfig.MATRIX_SIZE ):
-        for j in range( matconfig.MATRIX_SIZE ):
-            print ( mc.get( str( i*matconfig.MATRIX_SIZE + j ) ) ),
-        print
+       print 'Product of Matrices:'
+       for i in range( matconfig.MATRIX_SIZE ):
+           for j in range( matconfig.MATRIX_SIZE ):
+               print ( mc.get( str( i*matconfig.MATRIX_SIZE + j ) ) ),
+           print
   EOS
 
   slide <<-EOS, :code
+     # matrix-slave.py
+     #
+     # Receives a row and column of the matrix, computes the product
+     # sum and writes it to a memcached key, returning an ACK to beanstalkd
+
      import beanstalkc
      import memcache
      import time
      import operator
      import matconfig
  
-     while True:                            # Indefinitely wait for jobs to do
-        beanstalk = beanstalkc.Connection( host='127.0.0.1', port=11300 )
-        beanstalk.watch( matconfig.JOBS )     # Reserve jobs from this queue
-
-        job = beanstalk.reserve()           # Blocks until a job is available
+     beanstalk = beanstalkc.Connection( host='127.0.0.1', port=11300 )
+     beanstalk.use( matconfig.ACKS )
+     beanstalk.watch( matconfig.JOBS )  
+     
+     mc = memcache.Client ([ '127.0.0.1:11211' ], debug=0 )
+     
+     while True: 
+        job = beanstalk.reserve()    
 
         [ strI, strJ, stringRow, stringColumn ] = job.body.split( '\\n' )
         I = int( strI )
@@ -520,33 +525,44 @@ section "Now, we code" do
         row = map( int, stringRow.split() )
         column = map( int, stringColumn.split() )
         
-        n = len( row )
-        start_time = time.time()
-        
-        print 'Computing Cij..'
         try:
             result = reduce( operator.add, map( operator.mul, row, column ) )
         except Exception, e:
-            print e
-            print "Job failed.", n
+            print "Job failed"
             job.release()
 
-        mc = memcache.Client ([ '127.0.0.1:11211' ], debug=0 )
-        print 'Wrote result to',  str( I+J )
         mc.set( str( I + J ), result )
-        beanstalk.use( matconfig.ACKS )
         beanstalk.put( strI + strJ )
         
-        job.delete()                        # Tell the job server you're done
-        beanstalk.close()
-
-        print "Finished job in", str(time.time() - start_time), "seconds"
-        print
+        job.delete() 
   EOS
 
+  slide <<-EOS, :center
+    #{Y}Play!#{X}
+  EOS
 end
 
-section "Let's test that" do
+section "Wrapping Up" do
+    slide <<-EOS, :block
+        #{Y}What We Did#{X}
+
+        - Discovered how to distribute computation with Beanstalkd
+        - Discovered how to store distributed state with Memcached
+        - Implemented two distributed algorithms on our new Linux clusters
+        - Had fun hacking (?) 
+    EOS
+    slide <<-EOS, :center
+        #{Y}For History#{X}
+
+        https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial
+    EOS
+    slide <<-EOS, :center
+        #{Y}Us#{X}
+
+        @racheesingh on Github
+        @emaadmanzoor on Github
+        biju@bits-goa.ac.in
+    EOS
 end
 
 section "And we're done, thanks!" do

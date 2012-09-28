@@ -453,23 +453,35 @@ section "Testing the Installation" do
   EOS
 end
 
-section "Lets test that installation!" do
+section "Now, we code" do
   slide <<-EOS, :block
-        #{Y}Distributed π Estimation#{X}
-        
-                    Square Edge Length = #{O}2R#{X}
-                    Square Area = #{O}(2R) ^ 2 = 4 * (R ^ 2)#{X}
-                    Circle Area = #{O}π * (R ^ 2)#{X}
-
-                    #{O}π = 4 * ( Circle Area / Square Area )#{X}
+        #{Y}Distributed Matrix Multiplication#{X}
+        - The master sends one row and one column to the job queue.
+        - Therefore, each job comprises of a string containing a row and a column.
+        - The worker computes the sum of products for that row and column.
+        - The worker puts the result in a location and adds an ACK to the ACKS queue.
 
         #{R}Serial Algorithm#{X}
         
-        - Randomly throw many darts into the defined square region.
+        - 
         - Find the ratio of number of darts struck within the circle #{O}= C#{X}
-          to the total number of darts thrown #{O}= N#{X}.
-            
-                    #{O}π = 4 x ( C / N )#{X}
+
+  EOS
+  slide <<-EOS, :code
+  On a terminal, run:
+  $ memcached
+
+  Then try:
+
+  [rachee@lyrebird presentation]$ python
+  Python 2.7.3 (default, Jul 24 2012, 10:05:38) 
+  [GCC 4.7.0 20120507 (Red Hat 4.7.0-5)] on linux2
+  Type "help", "copyright", "credits" or "license" for more information.
+  >>> import memcache
+  >>> mc = memcache.Client( ['10.4.12.63:11211'], debug=0 )
+  >>> mc
+  <memcache.Client object at 0x7f4083a354c8>
+
   EOS
 end
 

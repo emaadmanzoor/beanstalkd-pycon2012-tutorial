@@ -447,25 +447,20 @@ section "Now, we code" do
         - The worker puts the result in a location and adds an ACK to the ACKS queue.
 
         #{R}Serial Algorithm#{X}
-        
-        - 
-        - Find the ratio of number of darts struck within the circle #{O}= C#{X}
+
+        - A = input matrix 1, B = input matrix 2 and C = product of A and B        
+        - Cij = Σ[ Aik * Bkj ]
 
   EOS
   slide <<-EOS, :code
-  On a terminal, run:
-  $ memcached
-
-  Then try:
-
-  [rachee@lyrebird presentation]$ python
-  Python 2.7.3 (default, Jul 24 2012, 10:05:38) 
-  [GCC 4.7.0 20120507 (Red Hat 4.7.0-5)] on linux2
-  Type "help", "copyright", "credits" or "license" for more information.
-  >>> import memcache
-  >>> mc = memcache.Client( ['10.4.12.63:11211'], debug=0 )
-  >>> mc
-  <memcache.Client object at 0x7f4083a354c8>
+        # matconfig.py
+        #
+        # Configuration parameters for our workers and slaves
+        JOBS = "jobs"       # The master pushes to this queue
+        ACKS = "acks"       # The workers push to this queue
+        MATRIX1 = [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]      # Input Matrix 1
+        MATRIX2 = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]      # Input MAtrix 2
+        MATRIX_SIZE = len( MATRIX1 )       # Size of matrix
 
   EOS
 end

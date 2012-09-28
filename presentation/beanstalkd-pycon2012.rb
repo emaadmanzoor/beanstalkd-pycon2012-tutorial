@@ -396,21 +396,23 @@ end
 
 section "Getting Ready" do
   slide <<-EOS, :block
-        #{Y}Matrix multiplication: Naive Algorithm takes too much time.
-                  Lets try to parallelize the process!
-        #{Y}But wait, there is something we need to install for that..
+        #{Y}Matrix multiplication: Naive Algorithm takes too much time.#{X}
+
+        - Lets try to parallelize the process!
+
+        #{Y}But wait, there is something we need to install for that..#{X}
   EOS
            
   slide <<-EOS, :block
-        #{R} Memcached: http://memcached.org/#{X}
+        #{R}Memcached: http://memcached.org/#{X}
 
-        # What is memcached?
+        #{Y}What is memcached?#{X}
           Memcached is an in-memory key-value store for small chunks of arbitrary data (strings, objects).
           - For instance: key_store.get( key ) = value
           - It is like a (python) dictionary residing in the main memory.
           - ..only that this dictionary is accessible by all the cluster nodes!
 
-        #{Y}Let's install memcached:
+        #{Y}Let's install memcached:#{X}
           - yum install memcached
           - pip install python-memcached
   EOS
@@ -441,12 +443,13 @@ end
 section "Now, we code" do
   slide <<-EOS, :block
         #{Y}Distributed Matrix Multiplication#{X}
+
         - The master sends one row and one column to the job queue.
         - Therefore, each job comprises of a string containing a row and a column.
         - The worker computes the sum of products for that row and column.
         - The worker puts the result in a location and adds an ACK to the ACKS queue.
 
-        #{R}Serial Algorithm#{X}
+        #{Y}Serial Algorithm#{X}
 
         - A = input matrix 1, B = input matrix 2 and C = product of A and B        
         - Cij = Σ[ Aik * Bkj ]
@@ -459,7 +462,7 @@ section "Now, we code" do
         JOBS = "jobs"       # The master pushes to this queue
         ACKS = "acks"       # The workers push to this queue
         MATRIX1 = [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]      # Input Matrix 1
-        MATRIX2 = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]      # Input MAtrix 2
+        MATRIX2 = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]      # Input Matrix 2
         MATRIX_SIZE = len( MATRIX1 )       # Size of matrix
 
   EOS

@@ -20,8 +20,6 @@ our time with code in the terminal. This was possible with the very awesome
 
 We compiled the terminal snapshots into a [presentation on SpeakerDeck](https://speakerdeck.com/u/emaadmanzoor/p/building-a-cluster-with-python-and-beanstalkd).
 
-<script async class="speakerdeck-embed" data-id="5078db60cd52500002042a24" data-ratio="1.3333333333333333" src="//speakerdeck.com/assets/embed.js"></script>
-
 ### Viewing In The Terminal
 
 To view the slides, first set up Ruby and [tkn](https://github.com/fxn/tkn) as described

@@ -18,6 +18,10 @@ We decided to build a terminal presentation, since we'd be spending most of
 our time with code in the terminal. This was possible with the very awesome
 [tkn](https://github.com/fxn/tkn) by [@fxn](https://github.com/fxn).
 
+We compiled the terminal snapshots into a [presentation on SpeakerDeck](https://speakerdeck.com/u/emaadmanzoor/p/building-a-cluster-with-python-and-beanstalkd).
+
+<script async class="speakerdeck-embed" data-id="5078db60cd52500002042a24" data-ratio="1.3333333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
 ### Viewing In The Terminal
 
 To view the slides, first set up Ruby and [tkn](https://github.com/fxn/tkn) as described
@@ -31,18 +35,7 @@ directory created by the `pygments.rb` gem. For me on OSX Lion, this was:
 Run the presentation in the terminal by executing the Ruby script in the `presentation` directory:
 `bundle exec bin/tkn beanstalkd-pycon2012.rb`
 
-### Presentation Snapshots
+## Contact
 
-Here are some snapshots of the presentation in the terminal. We'll upload a screencast after
-the conference, where we might append additional information gained during the tutorial session.
-
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-1.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-2.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-3.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-4.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-5.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-6.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-7.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-8.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-9.png)
-![](https://github.com/emaadmanzoor/beanstalkd-pycon2012-tutorial/raw/master/presentation/snapshots/snapshot-10.png)
+   * emaadmanzoor@gmail.com
+   * rachee.singh@gmail.com
